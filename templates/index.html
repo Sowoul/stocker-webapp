@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Prediction</title>
+    <style>
+        .plot-container {
+            width: 800px;
+            height: 600px;
+        }
+
+        .plot-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <h1>Stock Prediction</h1>
+    <form action="/" method="get">
+        <input type="text" name="search" placeholder="Enter a stock symbol" required>
+        <button type="submit">Predict</button>
+    </form>
+    <div class="plot-container">
+        <img src="{{ plot_url }}" class="plot-image">
+    </div>
+</body>
+</html>
