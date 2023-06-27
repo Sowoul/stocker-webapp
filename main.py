@@ -17,7 +17,7 @@ plt.style.use("fivethirtyeight")
 # Load Data
 def predict(company: str):
     start = dt.datetime(2012, 1, 1)
-    end = dt.datetime(2023, 2, 24)
+    end = dt.datetime.today()
     data = pdr.get_data_yahoo(company, start, end)
     dataframe = data[['Adj Close']]
     dataset = dataframe.values
