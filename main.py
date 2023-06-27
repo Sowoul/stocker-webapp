@@ -9,12 +9,12 @@ import yfinance as yfin
 import base64
 from io import BytesIO
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 
 yfin.pdr_override()
 plt.style.use("fivethirtyeight")
 
-# Load Data
+
 def predict(company: str):
     start = dt.datetime(2012, 1, 1)
     end = dt.datetime.today()
@@ -40,14 +40,14 @@ def predict(company: str):
         return np.array(dataX), np.array(dataY)
 
     # Reshape into X=t and Y=t+1
-    look_back = 20
+    look_back = 50
     trainX, trainY = create_dataset(train, look_back)
     testX, testY = create_dataset(test, look_back)
 
     # Reshape input to be [samples, time steps, features]
     trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], 1))
     testX = np.reshape(testX, (testX.shape[0], testX.shape[1], 1))
-    epoch_num = 50
+    epoch_num = 5
 
     # Create and fit the LSTM network
     model = Sequential()
@@ -77,11 +77,13 @@ def predict(company: str):
     # Shift test predictions for plotting
     testPredictPlot = np.empty_like(dataset)
     testPredictPlot[:, :] = np.nan
-    testPredictPlot[len(trainPredict) + (look_back * 2) + 1:len(dataset) - 1, :] = testPredict
+    testPredictPlot[len(trainPredict) + (look_back * 2) +
+                    1:len(dataset) - 1, :] = testPredict
 
     # Make predictions for future time steps
     forecast_input = testX[-1]
-    forecast_input = np.reshape(forecast_input, (1, look_back, 1))  # Reshape input
+    forecast_input = np.reshape(
+        forecast_input, (1, look_back, 1))  # Reshape input
 
     # Generate predictions for the next 60 time steps
     num_predictions = 10
@@ -90,7 +92,8 @@ def predict(company: str):
         next_pred = model.predict(forecast_input)
         forecast.append(next_pred[0][0])
         next_pred_reshaped = np.reshape(next_pred, (1, 1, 1))
-        forecast_input = np.append(forecast_input[:, 1:, :], next_pred_reshaped, axis=1)
+        forecast_input = np.append(
+            forecast_input[:, 1:, :], next_pred_reshaped, axis=1)
 
     # Reshape the forecast array to the correct shape
     forecast = np.reshape(forecast, (num_predictions, 1))
@@ -100,25 +103,31 @@ def predict(company: str):
 
     # Plot baseline and predictions
     fig, axs = plt.subplots(2, 1, figsize=(8, 6))
-    axs[0].plot(scaler.inverse_transform(dataset), label='True data')
-    axs[0].plot(trainPredictPlot, label='Training predictions')
-    testPredictPlot = np.concatenate((np.zeros((len(trainPredictPlot) - len(testPredictPlot), 1)), testPredictPlot))
-    axs[0].plot(testPredictPlot, label='Test predictions')
-    axs[0].plot(range(len(dataset), len(dataset) + num_predictions), forecast, label='Future predictions')
+    axs[0].plot(scaler.inverse_transform(dataset),
+                label='True data', linewidth=1.0)
+    axs[0].plot(trainPredictPlot, label='Training predictions', linewidth=1.0)
+    testPredictPlot = np.concatenate(
+        (np.zeros((len(trainPredictPlot) - len(testPredictPlot), 1)), testPredictPlot))
+    axs[0].plot(testPredictPlot, label='Test predictions', linewidth=1.0)
+    axs[0].plot(range(len(dataset), len(dataset) + num_predictions),
+                forecast, label='Future predictions', linewidth=1.0)
     axs[0].set_title(company + "'s Stock Price")
     axs[0].legend()
 
-    axs[1].plot(scaler.inverse_transform(dataset), label='True data')
-    axs[1].plot(trainPredictPlot, label='Training predictions')
-    testPredictPlot = np.concatenate((np.zeros((len(trainPredictPlot) - len(testPredictPlot), 1)), testPredictPlot))
-    axs[1].plot(testPredictPlot, label='Test predictions')
-    axs[1].plot(range(len(dataset), len(dataset) + num_predictions), forecast, label='Future predictions')
+    axs[1].plot(scaler.inverse_transform(dataset),
+                label='True data', linewidth=1.0)
+    axs[1].plot(trainPredictPlot, label='Training predictions', linewidth=1.0)
+    testPredictPlot = np.concatenate(
+        (np.zeros((len(trainPredictPlot) - len(testPredictPlot), 1)), testPredictPlot))
+    axs[1].plot(testPredictPlot, label='Test predictions', linewidth=1.0)
+    axs[1].plot(range(len(dataset), len(dataset) + num_predictions),
+                forecast, label='Future predictions', linewidth=1.0)
     axs[1].set_xlim(len(scaler.inverse_transform(dataset)) - 100 + num_predictions,
                     len(scaler.inverse_transform(dataset)) + num_predictions + 5)
 
     # Save the plot as a data URL
     buffer = BytesIO()
-    plt.savefig(buffer, format='png')
+    plt.savefig(buffer, format='png', dpi=300)
     plt.close()
     plot_data = base64.b64encode(buffer.getvalue()).decode('utf-8')
     plot_url = f"data:image/png;base64,{plot_data}"
@@ -129,9 +138,16 @@ def predict(company: str):
 app = Flask(__name__)
 
 
+@app.route('/home')
+def home():
+    return render_template('first_run.html')
+
+
 @app.route('/')
 def search():
     company = request.args.get('search')
+    if company is None:
+        return redirect('/home')
     plot_url = predict(company)
     return render_template('index.html', plot_url=plot_url)
 
