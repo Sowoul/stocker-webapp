@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stock Prediction</title>
+    <style>
+      .plot-container {
+        width: 800px;
+        height: 600px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      body {
+        font-family: sans-serif;
+        background-color: #f5f5f5;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 2em;
+      }
+
+      form {
+        margin-top: 20px;
+      }
+
+      input {
+        width: 200px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin-left: 40%;
+      }
+
+      button {
+        background-color: #000;
+        color: #fff;
+        padding: 10px;
+        border: none;
+        cursor: pointer;
+      }
+
+      .plot-container {
+        width: 800px;
+        height: 600px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        margin: 20px auto;
+      }
+
+      @media (max-width: 500px) {
+        .plot-container {
+          width: 100%;
+          height: 300px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Stock Prediction</h1>
+    <form action="/" method="get">
+      <input
+        type="text"
+        name="search"
+        placeholder="Enter a stock symbol"
+        required
+      />
+      <button type="submit">Predict</button>
+    </form>
+    <div class="plot-container"></div>
+  </body>
+</html>
