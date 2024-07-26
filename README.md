@@ -1,6 +1,6 @@
 # Stock Price Predictor
 
-This project predicts stock prices using historical data and LSTM neural networks. It utilizes Python libraries such as NumPy, Matplotlib, Pandas Datareader, Flask, and Keras.
+Stocker predicts stock prices using historical data and LSTM neural networks. It utilizes Python libraries such as NumPy, Matplotlib, Pandas Datareader, Flask, and Keras.
 
 ## Table of Contents
 
